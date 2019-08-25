@@ -1,11 +1,8 @@
-#include "marchingcubes.h"
+#include "MarchingCubes.h"
+#include <QVector>
+#include<QDebug>
 
-MarchingCubes::MarchingCubes()
-{
-
-}
-
-MpVector MarchingCubes::LinearInterp(mp4Vector p1, mp4Vector p2, float value)
+MpVector LinearInterp(mp4Vector p1, mp4Vector p2, float value)
 {
     MpVector p;
     if(p1.val != p2.val)
@@ -15,11 +12,15 @@ MpVector MarchingCubes::LinearInterp(mp4Vector p1, mp4Vector p2, float value)
     return p;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//	MARCHING CUBES	//
 
-TRIANGLE* MarchingCubes::MarchingCubesTriangle(int ncellsX, int ncellsY, int ncellsZ, float minValue,
-                                               mp4Vector *points, INTERSECTION intersection, int &numTriangles)
+//  VERSION  1A).  //
+TRIANGLE* MarchingCubes(int ncellsX, int ncellsY, int ncellsZ, float minValue, mp4Vector * points,
+                                        INTERSECTION intersection, int &numTriangles)
 {
     TRIANGLE * triangles = new TRIANGLE[3*ncellsX*ncellsY*ncellsZ];//this should be enough space, if not change 4 to 5
+    //QVector<TRIANGLE> triangles(3*ncellsX*ncellsY*ncellsZ);
     numTriangles = int(0);
 
     int YtimeZ = (ncellsY+1)*(ncellsZ+1);
@@ -77,26 +78,27 @@ TRIANGLE* MarchingCubes::MarchingCubesTriangle(int ncellsX, int ncellsY, int nce
             }	//END OF FOR LOOP
 
         //free all the wasted space
-        TRIANGLE * retTriangles = new TRIANGLE[numTriangles];
+        TRIANGLE *retTriangles = new TRIANGLE[numTriangles];
         for(int i=0; i < numTriangles; i++)
             retTriangles[i] = triangles[i];
-        delete [] triangles;
+        //delete [] triangles;
 
     return retTriangles;
 }
 
 
 //	VERSION  1B).  //
-TRIANGLE* MarchingCubes::MarchingCubesLinear(int ncellsX, int ncellsY, int ncellsZ, float minValue,
+TRIANGLE* MarchingCubesLinear(int ncellsX, int ncellsY, int ncellsZ, float minValue,
                                     mp4Vector * points, int &numTriangles)
 {
-    return MarchingCubesTriangle(ncellsX, ncellsY, ncellsZ, minValue, points, LinearInterp, numTriangles);
+    return MarchingCubes(ncellsX, ncellsY, ncellsZ, minValue, points, LinearInterp, numTriangles);
 }
 
 
 //	VERSION  2A).  //
-TRIANGLE* MarchingCubes::MarchingCubesTriangle(float mcMinX, float mcMaxX, float mcMinY, float mcMaxY, float mcMinZ, float mcMaxZ, int ncellsX, int ncellsY,
-                                               int ncellsZ, float minValue, FORMULA formula, INTERSECTION intersection, int &numTriangles)
+TRIANGLE* MarchingCubes(float mcMinX, float mcMaxX, float mcMinY, float mcMaxY, float mcMinZ, float mcMaxZ,
+                            int ncellsX, int ncellsY, int ncellsZ, float minValue,
+                            FORMULA formula, INTERSECTION intersection, int &numTriangles)
 {
     //space is already defined and subdivided, staring with step 3
     //first initialize the points
@@ -118,14 +120,14 @@ TRIANGLE* MarchingCubes::MarchingCubesTriangle(float mcMinX, float mcMaxX, float
         }
     }
     //then run Marching Cubes (version 1A) on the data
-    return MarchingCubesTriangle(ncellsX, ncellsY, ncellsZ, minValue, mcDataPoints, intersection, numTriangles);
+    return MarchingCubes(ncellsX, ncellsY, ncellsZ, minValue, mcDataPoints, intersection, numTriangles);
 }
 
 //	VERSION  2B).  //
-TRIANGLE* MarchingCubes::MarchingCubesLinear(float mcMinX, float mcMaxX, float mcMinY, float mcMaxY, float mcMinZ, float mcMaxZ,
+TRIANGLE* MarchingCubesLinear(float mcMinX, float mcMaxX, float mcMinY, float mcMaxY, float mcMinZ, float mcMaxZ,
                                 int ncellsX, int ncellsY, int ncellsZ, float minValue,
                                 FORMULA formula, int &numTriangles)
 {
-    return MarchingCubesTriangle(mcMinX, mcMaxX, mcMinY, mcMaxY, mcMinZ, mcMaxZ, ncellsX, ncellsY, ncellsZ, minValue,
+    return MarchingCubes(mcMinX, mcMaxX, mcMinY, mcMaxY, mcMinZ, mcMaxZ, ncellsX, ncellsY, ncellsZ, minValue,
         formula, LinearInterp, numTriangles);
 }

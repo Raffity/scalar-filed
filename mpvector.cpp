@@ -19,6 +19,7 @@ MpVector& MpVector::Normalize()
     return *this;
 }
 
+
 float MpVector::Magnitude()
 {
     return sqrt(x*x + y*y + z*z);
