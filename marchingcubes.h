@@ -12,7 +12,6 @@ public:
 
 MpVector LinearInterp(mp4Vector p1, mp4Vector p2, float value);
 
-////////////////////////////////////////////////////////////////////////////////////////
 typedef bool (*OUTSIDE)(MpVector);
 
 typedef MpVector (*INTERSECTION)(mp4Vector, mp4Vector, float);
