@@ -4,6 +4,7 @@
 #include <QGLWidget>
 #include <GL/gl.h>
 #include <marchingcubes.h>
+#include <QMouseEvent>
 
 class GlWindow : public QGLWidget
 {
@@ -12,6 +13,7 @@ public:
     explicit GlWindow(QWidget *parent);
     void initializeGL();
     void paintGL();
+    void mouseMoveEvent(QMouseEvent *pe);
     void resizeGL(int w, int h);
     void clear();
     void RunMarchingCubesTest();

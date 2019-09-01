@@ -21,10 +21,10 @@ void GlWindow::initializeGL()
     saX = 5;
     saY = 5;
     saZ = 5;
-    minValue = 1.8;
-    nX = 20;
-    nY = 20;
-    nZ = 20;
+    minValue = 10;
+    nX = 100;
+    nY = 100;
+    nZ = 100;
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
@@ -78,6 +78,18 @@ void GlWindow::resizeGL(int w, int h)
     glLoadIdentity();
 }
 
+void GlWindow::mouseMoveEvent(QMouseEvent *pe)
+{
+    static int x = pe->x(), y = pe->y();
+    {
+        angleY += pe->x() < x ? -saY : (pe->x() == x ? 0 : saY);
+        angleX += pe->y() < y ? -saX : (pe->y() == y ? 0 : saX);
+        x = pe->x();
+        y = pe->y();
+    }
+    updateGL();
+}
+
 void GlWindow::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -91,7 +103,7 @@ void GlWindow::paintGL()
         //draws triangles
         glBegin(GL_TRIANGLES);
             for(int i=0; i < numOfTriangles; i++){
-                glNormal3f(Triangles[i].norm.x, Triangles[i].norm.y, Triangles[i].norm.z);
+                glNormal3f(-Triangles[i].norm.x, -Triangles[i].norm.y, -Triangles[i].norm.z);
                 for(int j=0; j < 3; j++)
                     glVertex3f(Triangles[i].p[j].x,Triangles[i].p[j].y,Triangles[i].p[j].z);
             }
@@ -129,7 +141,10 @@ void GlWindow::RunMarchingCubesTest()
 
 float Potential(MpVector p)
 {
-    //return pow(p.x, 2)/3 + pow(p.y, 2)/3 + pow(p.z, 2)/3;
+    double r = (rand() % 10) /10.0;
+
+    return (p.x * p.x + p.y*p.y + p.z*p.z) + r;
+    return (pow(p.x, 3)/2 + pow(p.y, 3)/2 + pow(p.z, 3)/2);
     MpVector dp1 = MpVector( 0.0, -2.0,  0.0)-p;
     MpVector dp2 = MpVector( 0.0,  2.0,  0.0)-p;
     MpVector dp3 = MpVector( 2.0,  2.0,  0.0)-p;
