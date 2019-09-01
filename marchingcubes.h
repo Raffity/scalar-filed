@@ -18,8 +18,6 @@ typedef MpVector (*INTERSECTION)(mp4Vector, mp4Vector, float);
 
 typedef float (*FORMULA)(MpVector);
 
-///// the MARCHING CUBES algorithm itself /////
-
 TRIANGLE* MarchingCubes(int ncellsX, int ncellsY, int ncellsZ, float minValue, mp4Vector * points,
                                     INTERSECTION intersection, int &numTriangles);
 

@@ -5,6 +5,9 @@
 #include <GL/gl.h>
 #include <marchingcubes.h>
 #include <QMouseEvent>
+#include <QWheelEvent>
+#include <QKeyEvent>
+
 
 class GlWindow : public QGLWidget
 {
@@ -14,22 +17,21 @@ public:
     void initializeGL();
     void paintGL();
     void mouseMoveEvent(QMouseEvent *pe);
+    void wheelEvent(QWheelEvent *pe);
+    void keyPressEvent(QKeyEvent *pe);
     void resizeGL(int w, int h);
     void clear();
     void RunMarchingCubesTest();
     void InitData();
 
-    float stepZ, stepX, stepY;		//increment step for moving camera
-    float transZ, transX, transY;	//translates camera by this amount on each axis
-    float angleX, angleY, angleZ;	//angles of rotation
-    float saX, saY, saZ;			//increments on angles
+    float stepZ, stepX, stepY;
+    float transZ, transX, transY;
+    float angleX, angleY, angleZ;
+    float saX, saY, saZ;
 
-    //minimal value and number of cells on each axis: passed into Marching Cubes
     float minValue;
     int nX, nY, nZ;
-    //data points passed to Marching Cubes
     mp4Vector * mcPoints;
-    //data returned by Marching Cubes
     TRIANGLE * Triangles;
     int numOfTriangles;
 
@@ -37,18 +39,15 @@ private:
 
 };
 
-//boundary values for Marching Cubes
-#define MINX -4.0
-#define MAXX 5.0
-#define MINY -8.0
-#define MAXY 8.0
-#define MINZ -8.0
-#define MAXZ 8.0
+#define MINX -20.0
+#define MAXX 20.0
+#define MINY -20.0
+#define MAXY 20.0
+#define MINZ -20.0
+#define MAXZ 20.0
 
-//function which computes a value at point p
 float Potential(MpVector p);
 
-//draws coordinates of length s on all axis
 void drawCoordinates(float s);
 
 

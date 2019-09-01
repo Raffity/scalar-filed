@@ -76,11 +76,6 @@ MpVector::operator mp4Vector() const
     return mp4Vector(*this);
 }
 
-//MpVector::operator char*()  const
-//{
-//    return (char*)string::Format("(%f %f %f)", x, y, z).c_str();
-//}
-
 mp4Vector::mp4Vector() : x(0), y(0), z(0), val(0)
 { }
 
