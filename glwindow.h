@@ -39,14 +39,14 @@ private:
 
 };
 
-#define MINX -20.0
-#define MAXX 20.0
-#define MINY -20.0
-#define MAXY 20.0
-#define MINZ -20.0
-#define MAXZ 20.0
+#define MINX -15.0
+#define MAXX 15.0
+#define MINY -15.0
+#define MAXY 15.0
+#define MINZ -10.0
+#define MAXZ 10.0
 
-float Potential(MpVector p);
+float culculateFunc(MpVector p);
 
 void drawCoordinates(float s);
 

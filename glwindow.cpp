@@ -21,19 +21,23 @@ void GlWindow::initializeGL()
     saX = 2;
     saY = 2;
     saZ = 2;
-    minValue = 5;
-    nX = 100;
-    nY = 100;
-    nZ = 100;
+    minValue = 1;
+    nX = 20;
+    nY = 20;
+    nZ = 20;
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     float light_color[] = {1, 1, 1, 1};
     float light_position[] = {5, 2, 7, 1};
+    float light_position1[] = {-50, -20, -70, 1};
     glLightfv(GL_LIGHT0, GL_COLOR, light_color);
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT1, GL_COLOR, light_color);
+    glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
     glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
     glEnable(GL_LIGHTING);
 
     float ambient_color[] = {0, 1, 1, 1};
@@ -52,7 +56,7 @@ void GlWindow::initializeGL()
         for(int j=0; j < nY+1; j++)
             for(int k=0; k < nZ+1; k++) {
                 mp4Vector vert(MINX+i*stepSize.x, MINY+j*stepSize.y, MINZ+k*stepSize.z, 0);
-                vert.val = Potential((MpVector)vert);
+                vert.val = culculateFunc((MpVector)vert);
                 mcPoints[i*(nY+1)*(nZ+1) + j*(nZ+1) + k] = vert;
             }
 
@@ -111,6 +115,7 @@ void GlWindow::keyPressEvent(QKeyEvent *pe)
 {
     switch (pe->key())
     {
+        //Move camera
         case Qt::Key_W:
             transZ += 2;
             break;
@@ -129,6 +134,25 @@ void GlWindow::keyPressEvent(QKeyEvent *pe)
         case Qt::Key_E:
             transY -= 2;
             break;
+            //Change number split
+        case Qt::Key_T:
+            nX < 150 ? nX+=10 : nX; InitData(); RunMarchingCubesTest();
+            break;
+        case Qt::Key_G:
+            nX > 1? nX-=10 : nX; InitData(); RunMarchingCubesTest();
+            break;
+        case Qt::Key_Y:
+            nY < 150 ? nY+=10: nY; InitData(); RunMarchingCubesTest();
+            break;
+        case Qt::Key_H:
+            nY > 1? nY-=10 : nY; InitData(); RunMarchingCubesTest();
+            break;
+        case Qt::Key_U:
+            nZ < 150 ? nZ+=10: nZ; InitData(); RunMarchingCubesTest();
+            break;
+        case Qt::Key_J:
+            nZ > 1? nZ-=10 : nZ; InitData(); RunMarchingCubesTest();
+            break;
     }
     updateGL();
 }
@@ -146,12 +170,11 @@ void GlWindow::paintGL()
         glRotatef(angleZ, 0, 0, 1);
         glBegin(GL_TRIANGLES);
             for(int i=0; i < numOfTriangles; i++){
-                glNormal3f(-Triangles[i].norm.x, -Triangles[i].norm.y, -Triangles[i].norm.z);
+                glNormal3f(Triangles[i].norm.x, Triangles[i].norm.y, Triangles[i].norm.z);
                 for(int j=0; j < 3; j++)
                     glVertex3f(Triangles[i].p[j].x,Triangles[i].p[j].y,Triangles[i].p[j].z);
             }
         glEnd();
-        drawCoordinates(6);
     glPopMatrix();
 }
 
@@ -164,7 +187,7 @@ void GlWindow::InitData()
         for(int j=0; j < nY+1; j++)
             for(int k=0; k < nZ+1; k++) {
                 mp4Vector vert(MINX+i*stepSize.x, MINY+j*stepSize.y, MINZ+k*stepSize.z, 0);
-                vert.val = Potential((MpVector)vert);
+                vert.val = culculateFunc((MpVector)vert);
                 mcPoints[i*(nY+1)*(nZ+1) + j*(nZ+1) + k] = vert;
     }
 }
@@ -177,21 +200,12 @@ void GlWindow::RunMarchingCubesTest()
 }
 
 
-float Potential(MpVector p)
+float culculateFunc(MpVector p)
 {
-    double r = (rand() % 10) /10.0;
-
-    return sin(p.x*p.x + p.y * p.y)/(p.x * p.x+p.y*p.y) - p.z;
+    //return sin(p.x*p.x + p.y * p.y)/(p.x * p.x+p.y*p.y) - p.z;
     //return (p.x * p.x + p.y*p.y + p.z*p.z);
+    return sin(0.1*p.x*p.x+0.2*p.y*p.y) - p.z;
     return (pow(p.x, 3)/2 + pow(p.y, 3)/2 + pow(p.z, 3)/2);
-    MpVector dp1 = MpVector( 0.0, -2.0,  0.0)-p;
-    MpVector dp2 = MpVector( 0.0,  2.0,  0.0)-p;
-    MpVector dp3 = MpVector( 2.0,  2.0,  0.0)-p;
-    MpVector dp4 = MpVector( 0.0,  0.0,  4.0)-p;
-    MpVector dp5 = MpVector(-0.5,  3.1, -1.0)-p;
-    MpVector dp6 = MpVector( 0.0,  0.0, -4.0)-p;
-    return 1/dp1.Magnitude() + 1/dp2.Magnitude() + 1/dp3.Magnitude() + 1/dp4.Magnitude() + 1/dp5.Magnitude() +
-        1/dp6.Magnitude();
 }
 
 void drawCoordinates(float s)
