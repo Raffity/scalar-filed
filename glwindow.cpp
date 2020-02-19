@@ -9,22 +9,6 @@ GlWindow::GlWindow(QWidget *parent):
 
 void GlWindow::initializeGL()
 {
-    stepZ = 0.5;
-    stepX = 0.5;
-    stepY = 0.5;
-    transZ = -8;
-    transX =0;
-    transY = 0;
-    angleX= 0;
-    angleY = 0;
-    angleZ = 0;
-    saX = 2;
-    saY = 2;
-    saZ = 2;
-    minValue = 5;
-    nX = 100;
-    nY = 100;
-    nZ = 100;
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
@@ -46,17 +30,8 @@ void GlWindow::initializeGL()
     glColor4fv(ambient_color);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    mcPoints = new mp4Vector[(nX+1)*(nY+1)*(nZ+1)];
-    MpVector stepSize((MAXX-MINX)/nX, (MAXY-MINY)/nY, (MAXZ-MINZ)/nZ);
-    for(int i=0; i < nX+1; i++)
-        for(int j=0; j < nY+1; j++)
-            for(int k=0; k < nZ+1; k++) {
-                mp4Vector vert(MINX+i*stepSize.x, MINY+j*stepSize.y, MINZ+k*stepSize.z, 0);
-                vert.val = Potential((MpVector)vert);
-                mcPoints[i*(nY+1)*(nZ+1) + j*(nZ+1) + k] = vert;
-            }
-
-    Triangles = MarchingCubes(nX, nY, nZ, minValue, mcPoints, LinearInterp, numOfTriangles);
+    InitData();
+    RunMarchingCubes();
 }
 
 void GlWindow::clear()
@@ -64,6 +39,24 @@ void GlWindow::clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     makeCurrent();
     swapBuffers();
+}
+
+void GlWindow::updateGL(bool needReculculate)
+{
+    try
+    {
+        if(needReculculate)
+        {
+            InitData();
+            RunMarchingCubes();
+        }
+        QGLWidget::updateGL();
+
+    }
+    catch (int error)
+    {
+        QGLWidget::updateGL();
+    }
 }
 
 void GlWindow::resizeGL(int w, int h)
@@ -93,15 +86,15 @@ void GlWindow::wheelEvent(QWheelEvent *pe)
 {
     if(pe->delta() < 0)
     {
-        transX += 0.5;
-        transY += 0.5;
-        transZ += 0.5;
+        transX += 0.1;
+        transY += 0.1;
+        transZ += 0.1;
     }
     else if(pe->delta() > 0)
     {
-        transX -= 0.5;
-        transY -= 0.5;
-        transZ -= 0.5;
+        transX -= 0.1;
+        transY -= 0.1;
+        transZ -= 0.1;
     }
 
     updateGL();
@@ -112,22 +105,22 @@ void GlWindow::keyPressEvent(QKeyEvent *pe)
     switch (pe->key())
     {
         case Qt::Key_W:
-            transZ += 2;
+            transZ += 0.5;
             break;
         case Qt::Key_S:
-            transZ -= 2;
+            transZ -= 0.5;
             break;
         case Qt::Key_A:
-            transX += 2;
+            transX += 0.5;
             break;
         case Qt::Key_D:
-            transX -= 2;
+            transX -= 0.5;
             break;
         case Qt::Key_Q:
-            transY += 2;
+            transY += 0.5;
             break;
         case Qt::Key_E:
-            transY -= 2;
+            transY -= 0.5;
             break;
     }
     updateGL();
@@ -146,66 +139,127 @@ void GlWindow::paintGL()
         glRotatef(angleZ, 0, 0, 1);
         glBegin(GL_TRIANGLES);
             for(int i=0; i < numOfTriangles; i++){
-                glNormal3f(-Triangles[i].norm.x, -Triangles[i].norm.y, -Triangles[i].norm.z);
+                if(!flatten)
+                {
+                    glNormal3f(invert * Triangles[i].norm.x, invert * Triangles[i].norm.y, invert * Triangles[i].norm.z);
+                }
                 for(int j=0; j < 3; j++)
                     glVertex3f(Triangles[i].p[j].x,Triangles[i].p[j].y,Triangles[i].p[j].z);
             }
         glEnd();
-        drawCoordinates(6);
     glPopMatrix();
 }
 
 void GlWindow::InitData()
 {
+    nX = (MAXX-MINX) / stepX;
+    nY = (MAXY-MINY) / stepY;
+    nZ = (MAXZ-MINZ) / stepZ;
     delete [] mcPoints;
     mcPoints = new mp4Vector[(nX+1)*(nY+1)*(nZ+1)];
     MpVector stepSize((MAXX-MINX)/nX, (MAXY-MINY)/nY, (MAXZ-MINZ)/nZ);
     for(int i=0; i < nX+1; i++)
+    {
         for(int j=0; j < nY+1; j++)
-            for(int k=0; k < nZ+1; k++) {
+        {
+            for(int k=0; k < nZ+1; k++)
+            {
                 mp4Vector vert(MINX+i*stepSize.x, MINY+j*stepSize.y, MINZ+k*stepSize.z, 0);
-                vert.val = Potential((MpVector)vert);
+                vert.val = density_function((MpVector)vert);
                 mcPoints[i*(nY+1)*(nZ+1) + j*(nZ+1) + k] = vert;
+            }
+        }
     }
 }
 
 
-void GlWindow::RunMarchingCubesTest()
+void GlWindow::RunMarchingCubes()
 {
     delete [] Triangles;
-    Triangles = MarchingCubes(nX, nY, nZ, minValue, mcPoints, LinearInterp, numOfTriangles);
+    Triangles = MarchingCubes(nX, nY, nZ, isoVlaue, mcPoints, LinearInterp, numOfTriangles);
 }
 
-
-float Potential(MpVector p)
+float GlWindow::density_function(MpVector p)
 {
-    double r = (rand() % 10) /10.0;
+    float x, y, z;
+    x = p.x;
+    y = p.y;
+    z = p.z;
+    float u;
+    float r, theta, phi;
+    float Zet = 1.0, a;
 
-    return sin(p.x*p.x + p.y * p.y)/(p.x * p.x+p.y*p.y) - p.z;
-    //return (p.x * p.x + p.y*p.y + p.z*p.z);
-    return (pow(p.x, 3)/2 + pow(p.y, 3)/2 + pow(p.z, 3)/2);
-    MpVector dp1 = MpVector( 0.0, -2.0,  0.0)-p;
-    MpVector dp2 = MpVector( 0.0,  2.0,  0.0)-p;
-    MpVector dp3 = MpVector( 2.0,  2.0,  0.0)-p;
-    MpVector dp4 = MpVector( 0.0,  0.0,  4.0)-p;
-    MpVector dp5 = MpVector(-0.5,  3.1, -1.0)-p;
-    MpVector dp6 = MpVector( 0.0,  0.0, -4.0)-p;
-    return 1/dp1.Magnitude() + 1/dp2.Magnitude() + 1/dp3.Magnitude() + 1/dp4.Magnitude() + 1/dp5.Magnitude() +
-        1/dp6.Magnitude();
+    a = 1.0;
+
+    r = sqrt(x*x + y*y +z*z);
+
+    theta = atan(sqrt(x*x + y*y)/z);
+
+    phi = atan(y/x);
+
+    // n = 2, l = 1, m = 0; 2p
+/*
+    float A = pow(Zet/(2.0 * a), 1.5) * (2.0 - Zet*r/a);
+
+    float R = exp(-Zet*r/(2.0*a));
+
+    float Y = 0.5 * sqrt(3.0/ M_PI) * cos(theta);
+
+    u = A*R*Y;
+
+    // n = 3, l = 2, m = 0; dyz
+*/
+/*
+
+    float A = pow(Zet/(3.0 * a), 1.5) * (4.0/(27.0*sqrt(10.0)));
+
+    float R = (Zet*Zet*r*r/(a*a)) * exp(-Zet*r/(3.0*a));
+
+    float Y = 0.5 * sqrt(15.0/ M_PI) * (y*z/(r*r));
+
+    u = A*R*Y;
+
+*/
+
+    // n = 3, l = 2, m = 0; dz^2
+
+/*
+
+    float A = pow(Zet/(3.0 * a), 1.5) * (4.0/(27.0*sqrt(10.0)));
+
+    float R = (Zet*Zet*r*r/(a*a)) * exp(-Zet*r/(3.0*a));
+
+    float Y = 0.25 * sqrt(5.0/ M_PI) * ((-x*x - y*y + 2*z*z)/(r*r));
+
+    u = A*R*Y;
+
+*/
+
+    // n = 3, l = 2, m = 0; dyz
+
+
+
+    float A = pow(Zet/(3.0 * a), 1.5) * (4.0/(27.0*sqrt(10.0)));
+
+    float R = (Zet*Zet*r*r/(a*a)) * exp(-Zet*r/(3.0*a));
+
+    float Y = 0.5 * sqrt(15.0/ M_PI) * (y*z/(r*r));
+
+    u = A*R*Y;
+
+
+
+    // n = 3, l = 2, m = 0;
+
+
+
+    u = pow(Zet/(3.0 * a), 1.5) * (4.0/(27.0*sqrt(10.0))) *
+
+    (Zet*Zet*r*r/a*a) * exp(-Zet*r/(3.0*a))* 0.25 * sqrt(5.0/ M_PI) *
+
+    (3*cos(theta)*cos(theta) - 1.0);
+
+
+
+    return u*u * 10000; // квадрат модуля - плотность вероятности
 }
-
-void drawCoordinates(float s)
-{
-    glBegin(GL_LINES);
-        glVertex3f(0.0, 0.0, 0.0);		//x coordinate
-        glVertex3f(s, 0.0, 0.0);
-
-        glVertex3f(0.0, 0.0, 0.0);		//y coordinate
-        glVertex3f(0.0, s, 0.0);
-
-        glVertex3f(0.0, 0.0, 0.0);		//z coordinate
-        glVertex3f(0.0, 0.0, s);
-    glEnd();
-}
-
-

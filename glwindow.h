@@ -13,42 +13,39 @@ class GlWindow : public QGLWidget
 {
     Q_OBJECT
 public:
-    explicit GlWindow(QWidget *parent);
-    void initializeGL();
-    void paintGL();
-    void mouseMoveEvent(QMouseEvent *pe);
-    void wheelEvent(QWheelEvent *pe);
-    void keyPressEvent(QKeyEvent *pe);
-    void resizeGL(int w, int h);
-    void clear();
-    void RunMarchingCubesTest();
-    void InitData();
+    bool flatten = false;
+    double multiplier = 1;
+    int invert = -1;
+    float stepZ = 0.2, stepX = 0.2, stepY = 0.2;
+    float transZ = -8, transX = 0, transY = 0;
+    float angleX = 0, angleY = 0, angleZ = 0;
+    float saX = 2, saY = 2, saZ = 2;
+    float MINX = -10, MAXX = 10, MINY = -10, MAXY = 10, MINZ = -10, MAXZ = 10;
 
-    float stepZ, stepX, stepY;
-    float transZ, transX, transY;
-    float angleX, angleY, angleZ;
-    float saX, saY, saZ;
-
-    float minValue;
+    float isoVlaue = 1;
     int nX, nY, nZ;
     mp4Vector * mcPoints;
     TRIANGLE * Triangles;
     int numOfTriangles;
 
+
+    explicit GlWindow(QWidget *parent);
+    void initializeGL();
+    void paintGL();
+    void updateGL(bool needReculculate = false);
+    void mouseMoveEvent(QMouseEvent *pe);
+    void wheelEvent(QWheelEvent *pe);
+    void keyPressEvent(QKeyEvent *pe);
+    void resizeGL(int w, int h);
+    void clear();
+
+    void RunMarchingCubes();
+    void InitData();
+    void culculate();
+    float density_function(MpVector p);
+
 private:
 
 };
-
-#define MINX -20.0
-#define MAXX 20.0
-#define MINY -20.0
-#define MAXY 20.0
-#define MINZ -20.0
-#define MAXZ 20.0
-
-float Potential(MpVector p);
-
-void drawCoordinates(float s);
-
 
 #endif // GLWINDOW_H
