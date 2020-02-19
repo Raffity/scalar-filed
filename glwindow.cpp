@@ -9,15 +9,20 @@ GlWindow::GlWindow(QWidget *parent):
 
 void GlWindow::initializeGL()
 {
+
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     float light_color[] = {1, 1, 1, 1};
     float light_position[] = {5, 2, 7, 1};
+    float light_position1[] = {-50, -20, -70, 1};
     glLightfv(GL_LIGHT0, GL_COLOR, light_color);
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT1, GL_COLOR, light_color);
+    glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
     glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
     glEnable(GL_LIGHTING);
 
     float ambient_color[] = {0, 1, 1, 1};
@@ -104,6 +109,7 @@ void GlWindow::keyPressEvent(QKeyEvent *pe)
 {
     switch (pe->key())
     {
+        //Move camera
         case Qt::Key_W:
             transZ += 0.5;
             break;
@@ -121,7 +127,7 @@ void GlWindow::keyPressEvent(QKeyEvent *pe)
             break;
         case Qt::Key_E:
             transY -= 0.5;
-            break;
+            break;       
     }
     updateGL();
 }
@@ -138,14 +144,15 @@ void GlWindow::paintGL()
         glRotatef(angleY, 0, 1, 0);
         glRotatef(angleZ, 0, 0, 1);
         glBegin(GL_TRIANGLES);
-            for(int i=0; i < numOfTriangles; i++){
-                if(!flatten)
-                {
-                    glNormal3f(invert * Triangles[i].norm.x, invert * Triangles[i].norm.y, invert * Triangles[i].norm.z);
-                }
-                for(int j=0; j < 3; j++)
-                    glVertex3f(Triangles[i].p[j].x,Triangles[i].p[j].y,Triangles[i].p[j].z);
+        for(int i=0; i < numOfTriangles; i++)
+        {
+            if(!flatten)
+            {
+                glNormal3f(invert * Triangles[i].norm.x, invert * Triangles[i].norm.y, invert * Triangles[i].norm.z);
             }
+            for(int j=0; j < 3; j++)
+                glVertex3f(Triangles[i].p[j].x,Triangles[i].p[j].y,Triangles[i].p[j].z);
+        }
         glEnd();
     glPopMatrix();
 }
