@@ -4,10 +4,15 @@
 #include <QGLWidget>
 #include <GL/gl.h>
 #include <marchingcubes.h>
+#include <sharedmemorychecker.h>
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QKeyEvent>
-
+#include <QSharedMemory>
+#include <QBuffer>
+#include <QMessageBox>
+#include <QTextCodec>
+#include <QThread>
 
 class GlWindow : public QGLWidget
 {
@@ -28,7 +33,6 @@ public:
     TRIANGLE * Triangles;
     int numOfTriangles;
 
-
     explicit GlWindow(QWidget *parent);
     void initializeGL();
     void paintGL();
@@ -38,14 +42,24 @@ public:
     void keyPressEvent(QKeyEvent *pe);
     void resizeGL(int w, int h);
     void clear();
+    void setSharedName(QString sharedName);
+    void startCheckSharedMemory();
+    void stopCheckSharedMemory();
+    QString checkSharedMemory();
+    QList<mp4Vector> parseString(QString string);
 
-    void RunMarchingCubes();
-    void InitData();
-    void culculate();
-    float density_function(MpVector p);
+public slots:
+    void updateDataOfPoints(QList<mp4Vector>);
 
 private:
+    QString sharedMemoryName;
+    QThread *sharedMemoryThread = new QThread;
 
+    void RunMarchingCubes();
+    void InitData(QList<mp4Vector> points = QList<mp4Vector>());
+    void culculate();
+    float density_function(MpVector p);
+    bool active = true;
 };
 
 #endif // GLWINDOW_H

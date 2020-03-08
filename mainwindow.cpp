@@ -88,3 +88,16 @@ void MainWindow::on_step_z_editingFinished()
     ui->openGLWidget->stepZ = ui->step_z->value();
     ui->openGLWidget->updateGL(true);
 }
+
+void MainWindow::on_checkBox_stateChanged(int arg1)
+{
+    if(arg1 > 0)
+    {
+        ui->openGLWidget->setSharedName(ui->sharedName->text());
+        ui->openGLWidget->startCheckSharedMemory();
+    }
+    else
+    {
+        ui->openGLWidget->stopCheckSharedMemory();
+    }
+}

@@ -39,7 +39,23 @@
     <property name="sizeConstraint">
      <enum>QLayout::SetDefaultConstraint</enum>
     </property>
-    <item row="0" column="1">
+    <item row="0" column="0">
+     <widget class="GlWindow" name="openGLWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
      <widget class="QGroupBox" name="groupBox">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -63,7 +79,7 @@
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="title">
-       <string>GroupBox</string>
+       <string>Settings</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignJustify|Qt::AlignTop</set>
@@ -106,14 +122,27 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="4" column="1">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Isovalue</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="5" column="1">
         <widget class="QDoubleSpinBox" name="isovalue">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -132,7 +161,7 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
@@ -144,7 +173,7 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="7" column="0">
         <widget class="QLabel" name="label">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -157,7 +186,7 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
+       <item row="7" column="1">
         <widget class="QDoubleSpinBox" name="area_x_m">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -179,14 +208,14 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="8" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>-Y</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="8" column="1">
         <widget class="QDoubleSpinBox" name="area_y_m">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -208,14 +237,14 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
+       <item row="9" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>-Z</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="9" column="1">
         <widget class="QDoubleSpinBox" name="area_z_m">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -237,14 +266,14 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
+       <item row="10" column="0">
         <widget class="QLabel" name="label_10">
          <property name="text">
           <string>+X</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
+       <item row="10" column="1">
         <widget class="QDoubleSpinBox" name="area_x_p">
          <property name="minimum">
           <double>-200.000000000000000</double>
@@ -260,14 +289,14 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="11" column="0">
         <widget class="QLabel" name="label_11">
          <property name="text">
           <string>+Y</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
+       <item row="11" column="1">
         <widget class="QDoubleSpinBox" name="area_y_p">
          <property name="minimum">
           <double>-200.000000000000000</double>
@@ -283,14 +312,14 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="12" column="0">
         <widget class="QLabel" name="label_12">
          <property name="text">
           <string>+Z</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="1">
+       <item row="12" column="1">
         <widget class="QDoubleSpinBox" name="area_z_p">
          <property name="minimum">
           <double>-200.000000000000000</double>
@@ -306,7 +335,7 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="13" column="0">
         <widget class="QLabel" name="label_6">
          <property name="font">
           <font>
@@ -318,14 +347,14 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="0">
+       <item row="14" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>X</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="1">
+       <item row="14" column="1">
         <widget class="QDoubleSpinBox" name="step_x">
          <property name="decimals">
           <number>2</number>
@@ -341,14 +370,14 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="0">
+       <item row="15" column="0">
         <widget class="QLabel" name="label_8">
          <property name="text">
           <string>Y</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="1">
+       <item row="15" column="1">
         <widget class="QDoubleSpinBox" name="step_y">
          <property name="decimals">
           <number>2</number>
@@ -364,14 +393,14 @@ Model</string>
          </property>
         </widget>
        </item>
-       <item row="13" column="0">
+       <item row="16" column="0">
         <widget class="QLabel" name="label_9">
          <property name="text">
           <string>Z</string>
          </property>
         </widget>
        </item>
-       <item row="13" column="1">
+       <item row="16" column="1">
         <widget class="QDoubleSpinBox" name="step_z">
          <property name="minimum">
           <double>0.100000000000000</double>
@@ -384,23 +413,49 @@ Model</string>
          </property>
         </widget>
        </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Shared Memory Setup</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="2" column="0">
+           <widget class="QLineEdit" name="sharedName">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>200</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>SharedMemoryExample</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkBox">
+            <property name="text">
+             <string>Check shared memory</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Name shared memory</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="GlWindow" name="openGLWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
      </widget>
     </item>
    </layout>

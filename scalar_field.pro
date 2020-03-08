@@ -29,14 +29,16 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         MpVector.cpp \
-        marchingcubes.cpp
+        marchingcubes.cpp \
+        sharedmemorychecker.cpp
 
 HEADERS += \
         glwindow.h \
         mainwindow.h \
         MpVector.h \
         marchingcubes.h \
-        mctable.h
+        mctable.h \
+        sharedmemorychecker.h
 
 FORMS += \
         mainwindow.ui

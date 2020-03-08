@@ -9,7 +9,6 @@ GlWindow::GlWindow(QWidget *parent):
 
 void GlWindow::initializeGL()
 {
-
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
@@ -46,20 +45,29 @@ void GlWindow::clear()
     swapBuffers();
 }
 
+void GlWindow::startCheckSharedMemory()
+{
+    SharedMemoryChecker *checker = new SharedMemoryChecker();
+    checker->moveToThread(sharedMemoryThread);
+    connect(checker, SIGNAL(send(QList<mp4Vector>)), this, SLOT(updateDataOfPoints(QList<mp4Vector>)),Qt::DirectConnection);
+    connect(sharedMemoryThread, SIGNAL(started()), checker, SLOT(work()), Qt::DirectConnection);
+    sharedMemoryThread->start();
+}
+
+void GlWindow::stopCheckSharedMemory()
+{
+    sharedMemoryThread->exit();
+}
+
+
 void GlWindow::updateGL(bool needReculculate)
 {
-    try
+    if(active)
     {
         if(needReculculate)
         {
-            InitData();
             RunMarchingCubes();
         }
-        QGLWidget::updateGL();
-
-    }
-    catch (int error)
-    {
         QGLWidget::updateGL();
     }
 }
@@ -132,6 +140,17 @@ void GlWindow::keyPressEvent(QKeyEvent *pe)
     updateGL();
 }
 
+void GlWindow::setSharedName(QString sharedName)
+{
+    if(sharedName.length() > 1)
+    {
+        this->sharedMemoryName = "Global\\\\" + sharedName;
+    }
+    else
+    {
+        this->sharedMemoryName ="";
+    }
+}
 
 void GlWindow::paintGL()
 {
@@ -157,23 +176,48 @@ void GlWindow::paintGL()
     glPopMatrix();
 }
 
-void GlWindow::InitData()
+void GlWindow::updateDataOfPoints(QList<mp4Vector> points)
 {
+    active = false;
+    this->InitData(points);
+    this->RunMarchingCubes();
+    active = true;
+}
+
+void GlWindow::InitData(QList<mp4Vector> points)
+{
+    delete [] mcPoints;
     nX = (MAXX-MINX) / stepX;
     nY = (MAXY-MINY) / stepY;
     nZ = (MAXZ-MINZ) / stepZ;
-    delete [] mcPoints;
-    mcPoints = new mp4Vector[(nX+1)*(nY+1)*(nZ+1)];
-    MpVector stepSize((MAXX-MINX)/nX, (MAXY-MINY)/nY, (MAXZ-MINZ)/nZ);
-    for(int i=0; i < nX+1; i++)
+
+    if(points.size() > 1)
     {
-        for(int j=0; j < nY+1; j++)
+        nX++;
+        nY++;
+        nZ++;
+        mcPoints = new mp4Vector[points.size()];
+        int indx = 0;
+        foreach(mp4Vector point, points)
         {
-            for(int k=0; k < nZ+1; k++)
+            mcPoints[indx] = point;
+            indx++;
+        }
+    }
+    else
+    {
+        mcPoints = new mp4Vector[(nX+1)*(nY+1)*(nZ+1)];
+        MpVector stepSize((MAXX-MINX)/nX, (MAXY-MINY)/nY, (MAXZ-MINZ)/nZ);
+        for(int i=0; i < nX+1; i++)
+        {
+            for(int j=0; j < nY+1; j++)
             {
-                mp4Vector vert(MINX+i*stepSize.x, MINY+j*stepSize.y, MINZ+k*stepSize.z, 0);
-                vert.val = density_function((MpVector)vert);
-                mcPoints[i*(nY+1)*(nZ+1) + j*(nZ+1) + k] = vert;
+                for(int k=0; k < nZ+1; k++)
+                {
+                    mp4Vector vert(MINX+i*stepSize.x, MINY+j*stepSize.y, MINZ+k*stepSize.z, 0);
+                    vert.val = density_function((MpVector)vert);
+                    mcPoints[i*(nY+1)*(nZ+1) + j*(nZ+1) + k] = vert;
+                }
             }
         }
     }
@@ -205,7 +249,7 @@ float GlWindow::density_function(MpVector p)
     phi = atan(y/x);
 
     // n = 2, l = 1, m = 0; 2p
-/*
+
     float A = pow(Zet/(2.0 * a), 1.5) * (2.0 - Zet*r/a);
 
     float R = exp(-Zet*r/(2.0*a));
@@ -213,59 +257,6 @@ float GlWindow::density_function(MpVector p)
     float Y = 0.5 * sqrt(3.0/ M_PI) * cos(theta);
 
     u = A*R*Y;
-
-    // n = 3, l = 2, m = 0; dyz
-*/
-/*
-
-    float A = pow(Zet/(3.0 * a), 1.5) * (4.0/(27.0*sqrt(10.0)));
-
-    float R = (Zet*Zet*r*r/(a*a)) * exp(-Zet*r/(3.0*a));
-
-    float Y = 0.5 * sqrt(15.0/ M_PI) * (y*z/(r*r));
-
-    u = A*R*Y;
-
-*/
-
-    // n = 3, l = 2, m = 0; dz^2
-
-/*
-
-    float A = pow(Zet/(3.0 * a), 1.5) * (4.0/(27.0*sqrt(10.0)));
-
-    float R = (Zet*Zet*r*r/(a*a)) * exp(-Zet*r/(3.0*a));
-
-    float Y = 0.25 * sqrt(5.0/ M_PI) * ((-x*x - y*y + 2*z*z)/(r*r));
-
-    u = A*R*Y;
-
-*/
-
-    // n = 3, l = 2, m = 0; dyz
-
-
-
-    float A = pow(Zet/(3.0 * a), 1.5) * (4.0/(27.0*sqrt(10.0)));
-
-    float R = (Zet*Zet*r*r/(a*a)) * exp(-Zet*r/(3.0*a));
-
-    float Y = 0.5 * sqrt(15.0/ M_PI) * (y*z/(r*r));
-
-    u = A*R*Y;
-
-
-
-    // n = 3, l = 2, m = 0;
-
-
-
-    u = pow(Zet/(3.0 * a), 1.5) * (4.0/(27.0*sqrt(10.0))) *
-
-    (Zet*Zet*r*r/a*a) * exp(-Zet*r/(3.0*a))* 0.25 * sqrt(5.0/ M_PI) *
-
-    (3*cos(theta)*cos(theta) - 1.0);
-
 
 
     return u*u * 10000; // квадрат модуля - плотность вероятности

@@ -22,8 +22,6 @@ private slots:
 
     void on_isovalue_editingFinished();
 
-    void on_multiplier_editingFinished();
-
     void on_area_x_m_editingFinished();
 
     void on_area_y_m_editingFinished();
@@ -41,6 +39,8 @@ private slots:
     void on_step_y_editingFinished();
 
     void on_step_z_editingFinished();
+
+    void on_checkBox_stateChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;
