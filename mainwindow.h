@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QColorDialog>
 
 namespace Ui {
 class MainWindow;
@@ -41,6 +42,10 @@ private slots:
     void on_step_z_editingFinished();
 
     void on_checkBox_stateChanged(int arg1);
+
+    void on_multiplier_editingFinished();
+
+    void on_colorChange_clicked();
 
 private:
     Ui::MainWindow *ui;

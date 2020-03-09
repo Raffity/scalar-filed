@@ -24,8 +24,8 @@ void GlWindow::initializeGL()
     glEnable(GL_LIGHT1);
     glEnable(GL_LIGHTING);
 
-    float ambient_color[] = {0, 1, 1, 1};
-    float diff_color[] = {0.4, 0.3, 1, 1};
+    float ambient_color[] = {1, 1, 1, 1};
+    float diff_color[] = {1, 0.1, 0.1, 1};
     float spec_color[] = {1, 1, 1, 1};
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient_color);
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diff_color);
@@ -47,9 +47,11 @@ void GlWindow::clear()
 
 void GlWindow::startCheckSharedMemory()
 {
-    SharedMemoryChecker *checker = new SharedMemoryChecker();
+    SharedMemoryChecker *checker = new SharedMemoryChecker(nullptr, this->sharedMemoryName);
     checker->moveToThread(sharedMemoryThread);
     connect(checker, SIGNAL(send(QList<mp4Vector>)), this, SLOT(updateDataOfPoints(QList<mp4Vector>)),Qt::DirectConnection);
+    connect(checker, SIGNAL(sendSettings(int ,int, int, float, float, float, float, float, float)),
+            this, SLOT(setSettingsArea(int ,int, int, float, float, float, float, float, float)),Qt::DirectConnection);
     connect(sharedMemoryThread, SIGNAL(started()), checker, SLOT(work()), Qt::DirectConnection);
     sharedMemoryThread->start();
 }
@@ -66,8 +68,11 @@ void GlWindow::updateGL(bool needReculculate)
     {
         if(needReculculate)
         {
+            InitData();
             RunMarchingCubes();
         }
+        float difColor[] = {(float)diffuseColor.red()/255, (float)this->diffuseColor.green()/255, (float)this->diffuseColor.blue()/255, (float)this->diffuseColor.alpha()/255};
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, difColor);
         QGLWidget::updateGL();
     }
 }
@@ -144,7 +149,7 @@ void GlWindow::setSharedName(QString sharedName)
 {
     if(sharedName.length() > 1)
     {
-        this->sharedMemoryName = "Global\\\\" + sharedName;
+        this->sharedMemoryName = "Global\\" + sharedName;
     }
     else
     {
@@ -176,6 +181,20 @@ void GlWindow::paintGL()
     glPopMatrix();
 }
 
+void GlWindow::setSettingsArea(int nX, int nY, int nZ, float maxX, float maxY, float maxZ, float minX, float minY, float minZ)
+{
+    GlWindow::nX = nX;
+    GlWindow::nY = nY;
+    GlWindow::nZ = nZ;
+    GlWindow::MAXX = maxX;
+    GlWindow::MAXY = maxY;
+    GlWindow::MAXZ = maxZ;
+    GlWindow::MINX = minX;
+    GlWindow::MINY = minY;
+    GlWindow::MINZ = minZ;
+
+}
+
 void GlWindow::updateDataOfPoints(QList<mp4Vector> points)
 {
     active = false;
@@ -187,15 +206,9 @@ void GlWindow::updateDataOfPoints(QList<mp4Vector> points)
 void GlWindow::InitData(QList<mp4Vector> points)
 {
     delete [] mcPoints;
-    nX = (MAXX-MINX) / stepX;
-    nY = (MAXY-MINY) / stepY;
-    nZ = (MAXZ-MINZ) / stepZ;
 
     if(points.size() > 1)
     {
-        nX++;
-        nY++;
-        nZ++;
         mcPoints = new mp4Vector[points.size()];
         int indx = 0;
         foreach(mp4Vector point, points)
@@ -206,6 +219,9 @@ void GlWindow::InitData(QList<mp4Vector> points)
     }
     else
     {
+        nX = (MAXX-MINX) / stepX;
+        nY = (MAXY-MINY) / stepY;
+        nZ = (MAXZ-MINZ) / stepZ;
         mcPoints = new mp4Vector[(nX+1)*(nY+1)*(nZ+1)];
         MpVector stepSize((MAXX-MINX)/nX, (MAXY-MINY)/nY, (MAXZ-MINZ)/nZ);
         for(int i=0; i < nX+1; i++)
@@ -258,6 +274,5 @@ float GlWindow::density_function(MpVector p)
 
     u = A*R*Y;
 
-
-    return u*u * 10000; // квадрат модуля - плотность вероятности
+    return u*u * this->multiplier; // квадрат модуля - плотность вероятности
 }

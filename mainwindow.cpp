@@ -101,3 +101,18 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
         ui->openGLWidget->stopCheckSharedMemory();
     }
 }
+
+void MainWindow::on_multiplier_editingFinished()
+{
+    ui->openGLWidget->multiplier = ui->multiplier->value();
+    ui->openGLWidget->updateGL(true);
+}
+
+void MainWindow::on_colorChange_clicked()
+{
+    QColorDialog *colorDialog = new QColorDialog();
+    colorDialog->show();
+    colorDialog->exec();
+    ui->openGLWidget->diffuseColor = colorDialog->selectedColor();
+    ui->openGLWidget->updateGL();
+}
