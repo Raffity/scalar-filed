@@ -54,7 +54,7 @@ public slots:
 private:
     QString sharedMemoryName;
     QThread *sharedMemoryThread = new QThread;
-
+    QList<mp4Vector> oldPoints = QList<mp4Vector>();
     void RunMarchingCubes();
     void InitData(QList<mp4Vector> points = QList<mp4Vector>());
     float density_function(MpVector p);

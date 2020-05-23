@@ -1,4 +1,5 @@
 #include "glwindow.h"
+#include <QOpenGLShader>
 
 GlWindow::GlWindow(QWidget *parent):
     QGLWidget(parent)
@@ -11,7 +12,7 @@ void GlWindow::initializeGL()
 {
     glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
-    glShadeModel(GL_SMOOTH);
+    glShadeModel(GL_FLAT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     float light_color[] = {1, 1, 1, 1};
     float light_position[] = {5, 2, 7, 1};
@@ -198,6 +199,7 @@ void GlWindow::setSettingsArea(int nX, int nY, int nZ, float maxX, float maxY, f
 void GlWindow::updateDataOfPoints(QList<mp4Vector> points)
 {
     active = false;
+    GlWindow::oldPoints = points;
     this->InitData(points);
     this->RunMarchingCubes();
     active = true;
@@ -212,6 +214,16 @@ void GlWindow::InitData(QList<mp4Vector> points)
         mcPoints = new mp4Vector[points.size()];
         int indx = 0;
         foreach(mp4Vector point, points)
+        {
+            mcPoints[indx] = point;
+            indx++;
+        }
+    }
+    else if(oldPoints.size() > 1)
+    {
+        mcPoints = new mp4Vector[oldPoints.size()];
+        int indx = 0;
+        foreach(mp4Vector point, oldPoints)
         {
             mcPoints[indx] = point;
             indx++;
